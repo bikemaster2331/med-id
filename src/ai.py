@@ -26,7 +26,9 @@ if "results" in data:
     result = data["results"][0]
 
     print("Purpose:", result.get("purpose", ["N/A"])[0])
+    print("="*100)
     print("Warnings:", result.get("warnings", ["N/A"])[0])
+    print("="*100)
     print("Dosage:", result.get("dosage_and_administration", ["N/A"])[0])
 else:
     print("No results found")
