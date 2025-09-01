@@ -6,34 +6,31 @@ import requests
 import os
 
 
+import os
+import requests
+
+# Get API key from environment
 api_key = os.getenv("OPEN_FDA_KEY")
 
-url = f"https://api.fda.gov/drug/label.json?api_key={api_key}&search=naproxen"
-response = requests.get(url)
+url = "https://api.fda.gov/drug/label.json"
+params = {
+    "search": "ibuprofen",   # example drug
+    "limit": 1,
+    "api_key": api_key
+}
 
-if response.status_code == 200:
-    data = response.json()
+response = requests.get(url, params=params)
+data = response.json()
 
-    # Get the first result
-    if "results" in data and len(data["results"]) > 0:
-        drug_info = data["results"][0]
+if "results" in data:
+    result = data["results"][0]
 
-        # Extract specific fields safely
-        structured_data = {
-            "Brand Name": drug_info.get("openfda", {}).get("brand_name", ["Unknown"]),
-            "Generic Name": drug_info.get("openfda", {}).get("generic_name", ["Unknown"]),
-            "Description": drug_info.get("description", ["No description available"])[0],
-            "Pregnancy Warnings": drug_info.get("pregnancy", ["No pregnancy info available"])[0],
-            "Pediatric Use": drug_info.get("pediatric_use", ["No pediatric info available"])[0],
-            "Geriatric Use": drug_info.get("geriatric_use", ["No geriatric info available"])[0],
-            "Overdosage": drug_info.get("overdosage", ["No overdosage info available"])[0],
-        }
-
-        print(json.dumps(structured_data, indent=2))
-    else:
-        print("No results found.")
+    print("Purpose:", result.get("purpose", ["N/A"])[0])
+    print("Warnings:", result.get("warnings", ["N/A"])[0])
+    print("Dosage:", result.get("dosage_and_administration", ["N/A"])[0])
 else:
-    print(f"Error: {response.status_code}")
+    print("No results found")
+
 
 # def precaution():
 #     print("This app provides general information about medicines. \nWe are not medical professionals, and this does not replace professional advice. \nAlways consult a healthcare provider before taking any medicine.\nBy using this app, you agree to use it at your own risk.")
