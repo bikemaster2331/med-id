@@ -12,7 +12,7 @@ with open("tokenizer.pkl", "rb") as f:
     tokenizer = pickle.load(f)
 
 # Example text inputs
-test_texts = ["Cetirizine", "Store below 400c"]
+test_texts = ["ambroxixilin"]
 
 # Convert text to sequences
 sequences = tokenizer.texts_to_sequences(test_texts)
