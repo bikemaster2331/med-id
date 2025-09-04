@@ -6,8 +6,7 @@ import requests
 import os
 
 
-import os
-import requests
+
 
 # Get API key from environment
 api_key = os.getenv("OPEN_FDA_KEY")
@@ -24,10 +23,11 @@ data = response.json()
 
 if "results" in data:
     result = data["results"][0]
+    
 
     print("Purpose:", result.get("purpose", ["N/A"])[0])
     print("="*100)
-    print("Warnings:", result.get("warnings", ["N/A"])[0])
+    print("Indications and usage:", result.get("indications_and_usage", ["N/A"])[0])
     print("="*100)
     print("Dosage:", result.get("dosage_and_administration", ["N/A"])[0])
 else:
