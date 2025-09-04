@@ -25,6 +25,12 @@ samples = [
     ("Doxycycline", "MED_NAME"),
     ("Prednisone", "MED_NAME"),
     ("Montelukast", "MED_NAME"),
+    ("Xyzmab", "MED_NAME"),
+    ("Cardiprene", "MED_NAME"),
+    ("Neurozol", "MED_NAME"),
+    ("Fluconazole", "MED_NAME"),
+    ("Ranitidine", "MED_NAME"),
+
 
     # ❌ Non-medicine (other text on labels)
     ("Dosage: Take one tablet daily", "OTHER"),
@@ -43,6 +49,16 @@ samples = [
     ("For external use only", "OTHER"),
     ("Take with meals", "OTHER"),
     ("Not recommended for children under 12", "OTHER"),
+    ("Table", "OTHER"),
+    ("Water", "OTHER"),
+    ("Doctor", "OTHER"),
+    ("Health", "OTHER"),
+    ("Vitamin", "OTHER"),
+    ("Strong", "OTHER"),
+    ("Happy", "OTHER"),
+    ("Pain", "OTHER"),
+    ("Children", "OTHER"),
+    ("Use", "OTHER"),
 ]
 
 
@@ -50,7 +66,7 @@ texts, labels = zip(*samples)
 labels = [1 if l == "MED_NAME" else 0 for l in labels]  # 1=MED, 0=OTHER
 
 # 2. Tokenize text (convert words into numbers)
-tokenizer = Tokenizer()
+tokenizer = Tokenizer(char_level=True)
 tokenizer.fit_on_texts(texts)
 sequences = tokenizer.texts_to_sequences(texts)
 X = pad_sequences(sequences, padding="post")
@@ -60,7 +76,7 @@ y = np.array(labels)
 model = Sequential([
     Embedding(input_dim=len(tokenizer.word_index) + 1, output_dim=8, input_length=X.shape[1]),
     GlobalAveragePooling1D(),
-    Dense(8, activation="relu"),
+    Dense(16, activation="relu"),
     Dense(1, activation="sigmoid")  # output: probability MED_NAME vs OTHER
 ])
 
