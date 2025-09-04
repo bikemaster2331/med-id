@@ -4,6 +4,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Embedding, GlobalAveragePooling1D
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import pickle
 
 samples = [
     # ✅ Medicine names
@@ -65,17 +66,12 @@ model = Sequential([
 
 model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
+
 # 4. Train (takes longer)
-model.fit(X, y, epochs=500, verbose=2)  # 🚀 Each epoch trains once on all data
+model.fit(X, y, epochs=1000, verbose=2)  # 🚀 Each epoch trains once on all data
 
+model.save("med_classifier.h5")
+with open("tokenizer.pkl", "wb") as f:
+    pickle.dump(tokenizer,f)
 
-# 5. Test the model
-test_texts = ["Bonamine", "Store below 400c", "Cetirizine"]
-test_sequences = tokenizer.texts_to_sequences(test_texts)
-X_test = pad_sequences(test_sequences, maxlen=X.shape[1], padding="post")
-
-predictions = model.predict(X_test)
-
-for text, pred in zip(test_texts, predictions):
-    label = print(text) if pred > 0.5 else print("No medicine name detected")
 
