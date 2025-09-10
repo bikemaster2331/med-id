@@ -147,11 +147,14 @@ class MedicineApp:
         return json_data
     
     def save_to_json(self, data):
+        folder = 'output'
+        os.makedirs(folder, exist_ok=True) 
         filename = f"medicine_scan_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        filepath = os.path.join(folder, filename)
         try:
-            with open(filename, 'w') as f:
+            with open(filepath, 'w') as f:
                 json.dump(data, f, indent=2)
-            print(f"\nData saved to: {filename}")
+            print(f"\nData saved to: {filepath}")
         except Exception as e:
             print(f"Error saving JSON: {e}")
 
