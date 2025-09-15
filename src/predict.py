@@ -7,6 +7,8 @@ import json
 with open("output.json", "r", encoding="utf-8") as f:
     extracted_text = json.load(f)
 
+filtered_text = []
+
 model = load_model("med_classifier.h5")
 
 # Load tokenizer
@@ -22,8 +24,18 @@ X = pad_sequences(sequences, maxlen=model.input_shape[1], padding="post")
 
 # Predict
 pred_probs = model.predict(X)
-pred_labels = ["MED_NAME" if p > 0.5 else "OTHER" for p in pred_probs]
+
+for text, prob in zip(test_texts, pred_probs):
+    if prob > 0.5: 
+        filtered_text.append({
+            "text": text,
+            "probability": float(prob[0]) 
+        })
+
+print(filtered_text)
+
+# pred_labels = ["MED_NAME" if p > 0.5 else "OTHER" for p in pred_probs]
 
 # Print results
-for text, label, prob in zip(test_texts, pred_labels, pred_probs):
-    print(f"Text: {text} -> Prediction: {label} (prob={prob[0]:.3f})")
+# for text, label, prob in zip(test_texts, pred_labels, pred_probs):
+#     print(f"Text: {text} -> Prediction: {label} (prob={prob[0]:.3f})")
