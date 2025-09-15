@@ -2,9 +2,11 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
+import json
 
+with open("output.json", "r", encoding="utf-8") as f:
+    extracted_text = json.load(f)
 
-# Load trained model
 model = load_model("med_classifier.h5")
 
 # Load tokenizer
@@ -12,7 +14,7 @@ with open("tokenizer.pkl", "rb") as f:
     tokenizer = pickle.load(f)
 
 # Example text inputs
-test_texts = ["ambroxixilin"]
+test_texts = [item["text"] for item in extracted_text]
 
 # Convert text to sequences
 sequences = tokenizer.texts_to_sequences(test_texts)
