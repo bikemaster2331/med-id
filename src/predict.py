@@ -21,7 +21,7 @@ test_texts = [item["text"] for item in extracted_text]
 
 # Convert text to sequences
 sequences = tokenizer.texts_to_sequences(test_texts)
-X = pad_sequences(sequences, maxlen=model.input_shape[0], padding="post")
+X = pad_sequences(sequences, maxlen=model.input_shape[1], padding="post")
 
 # Predict
 pred_probs = model.predict(X)
