@@ -1,0 +1,28 @@
+from paddleocr import PaddleOCR
+
+
+ocr = PaddleOCR(use_angle_cls=False, lang='en')
+result = ocr.predict("res/meds/image.png")
+extracted_text = []
+if result and len(result) > 0:
+    result_dict = result[0]
+    if 'rec_texts' in result_dict and 'rec_scores' in result_dict:
+        texts = result_dict['rec_texts']
+        score = result_dict['rec_scores']
+        print(f"Found {len(texts)} text segments:")
+        for i, (text, confidence) in enumerate(zip(texts, score)):
+            if confidence > 0.999:
+                extracted_text.append({
+                    "text": text
+                })
+    else:
+        print("No text found")
+else:
+    print("OCR failed")
+# return extracted_text
+
+# image = ("res/meds/image.png")
+
+# ocr_run(image)
+
+
