@@ -19,10 +19,4 @@ if result and len(result) > 0:
         print("No text found")
 else:
     print("OCR failed")
-# return extracted_text
-
-# image = ("res/meds/image.png")
-
-# ocr_run(image)
-
-
+print(extracted_text)
