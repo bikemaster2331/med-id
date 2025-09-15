@@ -1,5 +1,5 @@
 from paddleocr import PaddleOCR
-
+import json
 
 ocr = PaddleOCR(use_angle_cls=False, lang='en')
 result = ocr.predict("res/meds/image.png")
@@ -19,4 +19,6 @@ if result and len(result) > 0:
         print("No text found")
 else:
     print("OCR failed")
-print(extracted_text)
+
+with open("output.json", "w", encoding ="utf-8") as f:
+    json.dump(extracted_text, f, ensure_ascii=False, indent=4)
