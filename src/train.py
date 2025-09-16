@@ -59,6 +59,7 @@ samples = [
     ("Pain", "OTHER"),
     ("Children", "OTHER"),
     ("Use", "OTHER"),
+    ("Prescription", "OTHER")
 ]
 
 
@@ -84,7 +85,7 @@ model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"]
 
 
 
-model.fit(X, y, epochs=1000, verbose=1)  # 🚀 Each epoch trains once on all data
+model.fit(X, y, epochs=1000, verbose=2)  # 🚀 Each epoch trains once on all data
 
 model.save("med_classifier.h5")
 with open("tokenizer.pkl", "wb") as f:
