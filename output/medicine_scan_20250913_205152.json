@@ -1,0 +1,87 @@
+{
+  "user_info": {
+    "name": "marthan",
+    "age": 21
+  },
+  "scan_info": {
+    "timestamp": "2025-09-13T20:51:52.305273",
+    "extracted_text": "R Prescription Medical TAKE ONE TABLET BY MOUTH EVERY DAY Refills 4 times iStock Credit: erdikocak Another 1138489304",
+    "total_detections": 17,
+    "ocr_details": [
+      {
+        "text": "R",
+        "confidence": 0.8795889616012573
+      },
+      {
+        "text": "Prescription",
+        "confidence": 0.9892424941062927
+      },
+      {
+        "text": "Medical",
+        "confidence": 0.9942549467086792
+      },
+      {
+        "text": "TAKE",
+        "confidence": 0.9396653175354004
+      },
+      {
+        "text": "ONE",
+        "confidence": 0.9726222157478333
+      },
+      {
+        "text": "TABLET",
+        "confidence": 0.9958467483520508
+      },
+      {
+        "text": "BY",
+        "confidence": 0.9353125095367432
+      },
+      {
+        "text": "MOUTH",
+        "confidence": 0.9951268434524536
+      },
+      {
+        "text": "EVERY",
+        "confidence": 0.9890860319137573
+      },
+      {
+        "text": "DAY",
+        "confidence": 0.9855127334594727
+      },
+      {
+        "text": "Refills",
+        "confidence": 0.9942626357078552
+      },
+      {
+        "text": "4",
+        "confidence": 0.9994655251502991
+      },
+      {
+        "text": "times",
+        "confidence": 0.9975101351737976
+      },
+      {
+        "text": "iStock",
+        "confidence": 0.9883915781974792
+      },
+      {
+        "text": "Credit: erdikocak",
+        "confidence": 0.9693242311477661
+      },
+      {
+        "text": "Another",
+        "confidence": 0.9949065446853638
+      },
+      {
+        "text": "1138489304",
+        "confidence": 0.9948745965957642
+      }
+    ]
+  },
+  "medicine_info": {
+    "raw_data": "R Prescription Medical TAKE ONE TABLET BY MOUTH EVERY DAY Refills 4 times iStock Credit: erdikocak Another 1138489304",
+    "parsed_name": null,
+    "parsed_dosage": null,
+    "parsed_ingredients": null
+  }
+}
