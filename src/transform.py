@@ -16,7 +16,7 @@ dataset = dataset.map(tokenize, batched=True)
 
 # 3. Encode labels
 label2id = {"OTHER": 0, "MED_NAME": 1}
-id2label = {0: "OTHER", 1: "MED_NAME"}W
+id2label = {0: "OTHER", 1: "MED_NAME"}
 dataset = dataset.map(lambda x: {"labels": [label2id[l] for l in x["label"]]})
 
 # 4. Load model
