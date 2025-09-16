@@ -2,7 +2,7 @@ import requests
 import os
 import json
 
-with open("output_next.json", "r", encoding="utf-8") as f:
+with open("results/filter/output_next.json", "r", encoding="utf-8") as f:
     filtered_text = json.load(f)
 
 
