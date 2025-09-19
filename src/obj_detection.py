@@ -1,37 +1,45 @@
-import numpy as np
-import cv2 as cv
-from matplotlib import pyplot as plt
+import cv2
+from ultralytics import YOLO
 
-cap = cv.VideoCapture(0)
-if not cap.isOpened():
-    print("Cannot open camera")
-    exit()
+model = YOLO("yolov8n.pt")
+cap = cv2.VideoCapture(0)
+
 while True:
-    # Capture frame-by-frame
     ret, frame = cap.read()
-
-    # if frame is read correctly ret is True
     if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
-    
-    img_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-    img_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    cascade = cv.CascadeClassifier('stop_data.xml')
-    found = cascade.detectMultiScale(frame, minSize=(20, 20))
-    for (x, y, w, h) in found:
-        cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
-
-    cv.imshow('MED-ID', frame)
-    if cv.waitKey(1) == ord('q'):
         break
 
+    results = model(frame, stream=True, imgsz=320)
 
+    for r in results:
+        if len(r.boxes) == 0:
+            continue  # no detections
 
+        # Track the largest box
+        largest_box = None
+        max_area = 0
 
+        for box in r.boxes:
+            x1, y1, x2, y2 = box.xyxy[0]  # coords
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
+            area = (x2 - x1) * (y2 - y1)  # box area
 
+            if area > max_area:
+                max_area = area
+                largest_box = (x1, y1, x2, y2, float(box.conf[0]), int(box.cls[0]))
 
-# When everything done, release the capture
+        # Draw only the largest box
+        if largest_box:
+            x1, y1, x2, y2, conf, cls = largest_box
+            label = f"{model.names[cls]} {conf:.2f}"
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, label, (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+    cv2.imshow("Largest Object Only", frame)
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
+
 cap.release()
-cv.destroyAllWindows()
+cv2.destroyAllWindows()
