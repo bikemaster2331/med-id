@@ -1,0 +1,34 @@
+[
+    {
+        "text": "Pharmacy",
+        "confidence": 0.999210000038147
+    },
+    {
+        "text": "Rx:",
+        "confidence": 0.9698922038078308
+    },
+    {
+        "text": "TAKE ONE TABLETB",
+        "confidence": 0.9788053631782532
+    },
+    {
+        "text": "EVERY DAY",
+        "confidence": 0.9599990844726562
+    },
+    {
+        "text": "LISINOPRIL",
+        "confidence": 0.9897360801696777
+    },
+    {
+        "text": "QTY:30",
+        "confidence": 0.9981363415718079
+    },
+    {
+        "text": "REFILL 3X BY 07-01-2017",
+        "confidence": 0.9736216068267822
+    },
+    {
+        "text": "Date Filled: 12-01-2016",
+        "confidence": 0.9917935132980347
+    }
+]
