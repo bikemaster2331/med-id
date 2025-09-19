@@ -50,8 +50,6 @@ class MedicineApp():
         self.save_to_json(extracted_text)
         return extracted_text
 
-
-
     def save_to_json(self, data):
         os.makedirs('results/text_detect', exist_ok = True)
         with open("results/text_detect/output.json", "w", encoding ="utf-8") as f:
@@ -66,7 +64,8 @@ def process_pipe():
     else:
         exit()
 
-def main():
-    process_pipe()
-
-main()
+# Remove the direct execution - this will be called from main.py
+# def main():
+#     process_pipe()
+# 
+# main()
