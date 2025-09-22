@@ -1,0 +1,12 @@
+train: dataset/train/images
+val: dataset/valid/images
+test: dataset/test/images
+
+names: 
+  0: -Bottle-
+  1: jar
+  2: labeled
+  3: plastic box
+  4: unlabeled
+
+
