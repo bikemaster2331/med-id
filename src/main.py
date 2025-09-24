@@ -24,6 +24,7 @@ def run_api_client():
     print("=== STEP 3: FDA API LOOKUP ===")
     try:
         import api_client
+        
         print("✓ FDA API lookup completed successfully\n")
     except Exception as e:
         print(f"✗ Error in API client: {e}")
@@ -32,7 +33,8 @@ def run_api_client():
 def main():
 
     print("🔬 MEDICINE IDENTIFICATION SYSTEM")
-    print("=" * 50)    
+    print("=" * 50)
+    run_pipeline() 
     run_prediction()    
     run_api_client()
     

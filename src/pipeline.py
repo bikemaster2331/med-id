@@ -22,14 +22,14 @@ def precaution():
 class MedicineApp():
 
     def ask(self):
-        self.image = cv2.imread('res/meds/med1.jpg')
+        self.image = cv2.imread('res/meds/paracetamol.png')
         if self.image is None:
             print("Error: Image not found")
             return False
         return True    
     
     def text_extract(self):
-        ocr = PaddleOCR(use_angle_cls=False, lang='en')
+        ocr = PaddleOCR(use_angle_cls=True, lang='en')
         result = ocr.predict(self.image)
         extracted_text = []
         if result and len(result) > 0:
@@ -63,9 +63,3 @@ def process_pipe():
             app.text_extract()
     else:
         exit()
-
-# Remove the direct execution - this will be called from main.py
-# def main():
-#     process_pipe()
-# 
-# main()
