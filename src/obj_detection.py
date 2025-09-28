@@ -1,12 +1,16 @@
 import cv2
 from ultralytics import YOLO
 import sys
+import time 
+import os 
+
 
 # Load your trained model (replace with your path)
 model = YOLO("ai/runs/detect/train5/weights/best.pt")
 
 cap = cv2.VideoCapture(0)
-
+save_dir = "output"
+os.makedirs(save_dir, exist_ok=True)
 
 def run_model(frame):
     results = model(frame, imgsz=320)
@@ -18,12 +22,13 @@ def run_model(frame):
     for r in results:
         for box in r.boxes:
             conf = float(box.conf[0]) 
-            if conf > 0.1:  
+            if conf > 0.8:  
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
                 area = (x2-x1) * (y2-y1)
                 if area > max_area:
                     max_area = area
                     bigbox = (x1, y1, x2, y2, int(box.cls[0]), conf)
+                    return False
 
             
     if bigbox:
@@ -58,8 +63,14 @@ while True:
                 sys.exit()
     else:
         run_model(frame)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
             break
+        elif key == ord ("c"):
+            filename = f"capture_{int(time.time())}.jpg"
+            filepath = os.path.join(save_dir, filename)
+            cv2.imwrite(filepath, frame)
+            print("Image saved")
 
 cap.release()
 cv2.destroyAllWindows()
