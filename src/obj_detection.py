@@ -11,20 +11,28 @@ cap = cv2.VideoCapture(0)
 def run_model(frame):
     results = model(frame, imgsz=320)
 
+    bigbox = None
+    max_area = 0
+
     # Draw boxes from detections
     for r in results:
         for box in r.boxes:
-            conf = float(box.conf[0])   # confidence
-            if conf > 0.1:  # only keep detections with >80% confidence
+            conf = float(box.conf[0]) 
+            if conf > 0.1:  
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
-                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-                cls = int(box.cls[0])   # class id
-                label = f"{model.names[cls]} {conf:.2f}"
+                area = (x2-x1) * (y2-y1)
+                if area > max_area:
+                    max_area = area
+                    bigbox = (x1, y1, x2, y2, int(box.cls[0]), conf)
 
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, label, (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    # Show result live
+            
+    if bigbox:
+        x1, y1, x2, y2, cls, conf = bigbox
+        label = f"{model.names[cls]} {conf:.2f}"
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(frame, label, (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # Show ret live
     cv2.imshow("YOLO Detection", frame)
 
 
