@@ -1,9 +1,7 @@
 import cv2
 from ultralytics import YOLO
 import sys
-import time 
-import os 
-
+import os, time 
 
 # Load your trained model (replace with your path)
 model = YOLO("ai/runs/detect/train5/weights/best.pt")
@@ -28,7 +26,6 @@ def run_model(frame):
                 if area > max_area:
                     max_area = area
                     bigbox = (x1, y1, x2, y2, int(box.cls[0]), conf)
-                    return False
 
             
     if bigbox:
@@ -39,6 +36,8 @@ def run_model(frame):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         # Show ret live
     cv2.imshow("YOLO Detection", frame)
+
+    return bigbox
 
 
 
@@ -61,15 +60,16 @@ while True:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
                 sys.exit()
-    else:
-        run_model(frame)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
+    else:    
+        bigbox = run_model(frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
-        elif key == ord ("c"):
+        if bigbox:
+            x1, y1, x2, y2, cls, conf = bigbox
+            crop = frame[y1:y2, x1:x2]
             filename = f"capture_{int(time.time())}.jpg"
             filepath = os.path.join(save_dir, filename)
-            cv2.imwrite(filepath, frame)
+            cv2.imwrite(filepath, crop)
             print("Image saved")
 
 cap.release()
