@@ -27,9 +27,7 @@ def run_model(frame):
     # Show result live
     cv2.imshow("YOLO Detection", frame)
 
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        return True
-    return False
+
 
 while True:
     ret, frame = cap.read()
@@ -50,4 +48,10 @@ while True:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
                 sys.exit()
-            
+    else:
+        run_model(frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+cap.release()
+cv2.destroyAllWindows()
