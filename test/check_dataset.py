@@ -7,7 +7,6 @@ image_exts = [".jpg", ".png", ".jpeg"]
 # class names from your dataset.yaml
 names = {
     0: "Bottle",
-    1: "Jar"
 }
 num_classes = len(names)
 
@@ -35,7 +34,7 @@ for s in sets:
                     continue
                 cls_id = int(parts[0])
                 if cls_id >= num_classes:
-                    if cls_id == 3:
-                        cls_id = 1
+                    if cls_id == 1:
+                        cls_id = 0
 
 print("Check finished")
