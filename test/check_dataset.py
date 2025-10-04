@@ -1,5 +1,5 @@
 import os
-
+# USED TO CLEAN DATASET (FILTERED ID CLASS NAME TO BE ONLY 1 CLASS 'MEDICINE BOTTLES')
 # paths to your dataset
 sets = ["dataset/train", "dataset/valid", "dataset/test"]
 image_exts = [".jpg", ".png", ".jpeg"]
