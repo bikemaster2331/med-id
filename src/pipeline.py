@@ -26,7 +26,9 @@ class MedicineApp():
         if self.image is None:
             print("Error: Image not found")
             return False
-        return True    
+        return True  
+
+    # def object_detection(): 
     
     def text_extract(self):
         ocr = PaddleOCR(use_angle_cls=True, lang='en')
