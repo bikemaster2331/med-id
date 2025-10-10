@@ -4,7 +4,7 @@ import sys
 import os, time 
 
 # Load your trained model (replace with your path)
-model = YOLO("runs/detect/train/weights/best.pt")
+model = YOLO("ai/runs/detect/train3/weights/best.pt")
 
 cap = cv2.VideoCapture(0)
 save_dir = "output"
@@ -56,6 +56,9 @@ while True:
                 print("Image not found")
                 sys.exit()
             else:
+                filename = f"img_capture_{int(time.time())}.jpg"
+                filepath = os.path.join(save_dir, filename)
+                cv2.imwrite(filepath, frame)
                 run_model(frame)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
@@ -67,7 +70,7 @@ while True:
         if bigbox:
             x1, y1, x2, y2, cls, conf = bigbox
             crop = frame[y1:y2, x1:x2]
-            filename = f"capture_{int(time.time())}.jpg"
+            filename = f"video_capture_{int(time.time())}.jpg"
             filepath = os.path.join(save_dir, filename)
             cv2.imwrite(filepath, crop)
             print("Image saved")
