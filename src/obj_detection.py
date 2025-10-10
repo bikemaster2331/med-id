@@ -1,9 +1,9 @@
 import cv2
 from ultralytics import YOLO
 import sys
-import os, time 
+import os, time
 
-# Load your trained model (replace with your path)
+# Load your trained model (replace path)
 model = YOLO("ai/runs/detect/train3/weights/best.pt")
 
 cap = cv2.VideoCapture(0)
