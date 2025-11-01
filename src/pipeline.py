@@ -30,7 +30,7 @@ def precaution():
 class MedicineApp():
 
     def ask(self):
-        self.image = cv2.imread('uimages/')
+        self.image = cv2.imread('res/meds/med1.jpg')
         if self.image is None:
             print("Error: Image not found")
             return False
