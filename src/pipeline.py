@@ -1,7 +1,15 @@
 from paddleocr import PaddleOCR
 import json
-import os
 import cv2
+from ultralytics import YOLO
+import sys
+import os, time
+
+model = YOLO("ai/runs/detect/train3/weights/best.pt")
+
+cap = cv2.VideoCapture(0)
+save_dir = "output" 
+os.makedirs(save_dir, exist_ok=True)
 
 
 def precaution():
