@@ -4,7 +4,7 @@ import sys
 import os, time
 
 # Load your trained model (replace with your path)
-model = YOLO("ai/runs/detect/train3/weights/best.pt")
+model = YOLO("ai/runs/detect/train5/weights/best.pt")
 
 cap = cv2.VideoCapture(0)
 save_dir = "output"
@@ -20,7 +20,7 @@ def run_model(frame):
     for r in results:
         for box in r.boxes:
             conf = float(box.conf[0]) 
-            if conf > 0.5:  
+            if conf > 0.6:  
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
                 area = (x2-x1) * (y2-y1)
                 if area > max_area:
