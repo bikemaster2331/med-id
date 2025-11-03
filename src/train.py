@@ -24,7 +24,7 @@ samples = [
     ("Hydroxyzine", "MED_NAME"),
     ("Doxycycline", "MED_NAME"),
     ("Prednisone", "MED_NAME"),
-    ("Montelukast", "MED_NAME"),
+    ("Montelukast", "MED_NAME"),    
     ("Xyzmab", "MED_NAME"),
     ("Cardiprene", "MED_NAME"),
     ("Neurozol", "MED_NAME"),
