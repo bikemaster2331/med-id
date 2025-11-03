@@ -13,6 +13,7 @@ os.makedirs(save_dir, exist_ok=True)
 
 
 def precaution():
+    
     print("This app provides general information about medicines. \nWe are not medical professionals, and this does not replace professional advice. \nAlways consult a healthcare provider before taking any medicine.\nBy using this app, you agree to use it at your own risk.")
 
     while True:
