@@ -1,5 +1,5 @@
 # ill be using fuzzymatching and levenshtein distance to match and filter medicine names detected
-
+# connect this to the pipeline.py
 import Levenshtein
 import sqlite3
 import re
