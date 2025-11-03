@@ -13,14 +13,18 @@ with open("results/text_detect/output.json", "r", encoding="utf-8") as f:
 os.makedirs('results/filter', exist_ok=True)
 
 if not extracted_text:
-    print("No text found in input JSON. Creating empty output file...")
-    # Write empty array to JSON file
+    print("No text found...")
     with open("results/filter/output_next.json", "w", encoding="utf-8") as f:
         json.dump([], f, ensure_ascii=False, indent=4)
     sys.exit()
 
-# Extract text strings and filter out empty ones
-test_texts = [item["text"].strip() for item in extracted_text if item.get("text", "").strip()]
+else:
+    test_texts = []  # make an empty list first
+
+    for item in extracted_text:
+        if item.get("text", "").strip():  # check if "text" exists and not empty
+            text = item["text"].strip()   # get the text and remove spaces
+            test_texts.append(text)        # add it to the list
 
 if not test_texts:
     print("No valid text found after filtering empty strings. Creating empty output file...")
