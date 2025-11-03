@@ -1,40 +1,19 @@
 import os
-# USED TO CLEAN DATASET (FILTERED ID CLASS NAME TO BE ONLY 1 CLASS 'MEDICINE BOTTLES')
-# paths to your dataset
-sets = ["dataset/train", "dataset/valid", "dataset/test"]
-image_exts = [".jpg", ".png", ".jpeg"]
 
-# class names from your dataset.yaml
-names = {
-    0: "Bottle",
-}
-num_classes = len(names)
+image_dir = "dataset/train/images"
+label_dir = "dataset/train/labels"
 
-for s in sets:
-    img_dir = f"{s}/images"
-    lbl_dir = f"{s}/labels"
+for file in os.listdir(label_dir):
+    if not file.endswith(".txt"):
+        continue
 
-    print(f"\nChecking {s} set...")
+    label_path = os.path.join(label_dir, file)
+    image_path = os.path.join(image_dir, file.replace(".txt", ".jpg"))
 
-    # check images vs labels
-    images = [f for f in os.listdir(img_dir) if os.path.splitext(f)[1].lower() in image_exts]
-    labels = [f for f in os.listdir(lbl_dir) if f.endswith(".txt")]
+    if os.path.getsize(label_path) == 0 or open(label_path).read().strip() == "":
+        print(f"🗑 Removing empty label and image: {file}")
+        os.remove(label_path)
+        if os.path.exists(image_path):
+            os.remove(image_path)
 
-    img_basenames = {os.path.splitext(f)[0] for f in images}
-    lbl_basenames = {os.path.splitext(f)[0] for f in labels}
-
-
-
-    # check class ids inside each label file
-    for lbl_file in labels:
-        with open(os.path.join(lbl_dir, lbl_file), "r") as f:
-            for i, line in enumerate(f, start=1):
-                parts = line.strip().split()
-                if not parts:
-                    continue
-                cls_id = int(parts[0])
-                if cls_id >= num_classes:
-                    if cls_id == 1:
-                        cls_id = 0
-
-print("Check finished")
+print("✅ Done! All empty labels and images removed.")
