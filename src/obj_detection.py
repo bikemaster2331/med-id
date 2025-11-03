@@ -150,7 +150,7 @@ def run_model(frame, debug_mode=False, use_image_thresholds=False):
         label = f"{model.names[cls]} {conf:.2f}"
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
         cv2.putText(frame, label, (x1, y1 - 10),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     
     # Check for stable detection
     is_stable = False
@@ -161,18 +161,18 @@ def run_model(frame, debug_mode=False, use_image_thresholds=False):
         # Add stability indicator
         if is_stable:
             cv2.putText(frame, "STABLE", (10, 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         else:
             remaining = STABILITY_FRAMES - len(detection_history)
             cv2.putText(frame, f"Stabilizing... {remaining}", (10, 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
     else:
         detection_history.clear()
     
     # Show confidence threshold info
     cv2.putText(frame, f"Conf: {CONF_THRESHOLD:.2f} | Area: {MIN_DETECTION_AREA}", 
-               (10, frame.shape[0] - 10),
-               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            (10, frame.shape[0] - 10),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
     
     cv2.imshow("YOLO Detection", frame)
     
