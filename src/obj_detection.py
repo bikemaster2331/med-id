@@ -247,9 +247,6 @@ class MedicineApp:
         self.last_class_detected = cls
         print(f"✅ Saved: {filename}")
         return True
-    
-    def text_extract(self):
-        ocr = Paddl
 
     def start_detection(self):
         """The main execution loop for the video stream."""
