@@ -4,7 +4,7 @@ import os
 def run_pipeline():
     print("=== STEP 1: OCR TEXT EXTRACTION ===")
     try:
-        from pipeline import process_pipe
+        from obj_detection import process_pipe
         process_pipe()
         print("✓ OCR processing completed successfully\n")
     except Exception as e:
