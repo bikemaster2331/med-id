@@ -308,10 +308,12 @@ class MedicineApp:
         print("Detection stopped")
 
 
-app = MedicineApp(model_instance=model, capture_instance=cap)
-
-def process_pipe():
+if __name__ == '__main__':
     if precaution():
-        app.start_detection()
-    else:
-        exit()
+        # Instantiate the class, passing the global model and camera objects
+        app = MedicineApp(model_instance=model, capture_instance=cap)
+        def process_pipe():
+            if precaution():
+                app.start_detection()
+            else:
+                exit()
