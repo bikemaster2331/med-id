@@ -6,7 +6,6 @@ import time
 from collections import deque
 import numpy as np
 
-
 # Load your trained model
 model = YOLO("ai/runs/detect/train5/weights/best.pt")
 
@@ -15,31 +14,17 @@ save_dir = "output"
 os.makedirs(save_dir, exist_ok=True)
 
 # Configuration
-CONF_THRESHOLD = 0.75 
-CONF_THRESHOLD_IMAGE = 0.60  
-MIN_DETECTION_AREA = 5000  
-MIN_DETECTION_AREA_IMAGE = 2000  
-STABILITY_FRAMES = 5 
-COOLDOWN_SECONDS = 3  
+CONF_THRESHOLD = 0.75  # For video stream
+CONF_THRESHOLD_IMAGE = 0.60  # Lower threshold for static images
+MIN_DETECTION_AREA = 5000  # For video stream
+MIN_DETECTION_AREA_IMAGE = 2000  # Lower threshold for static images
+STABILITY_FRAMES = 5  # Number of consecutive frames needed for stable detection
+COOLDOWN_SECONDS = 3  # Cooldown between saves
 
 # Tracking variables
 detection_history = deque(maxlen=STABILITY_FRAMES)
 last_save_time = 0
 last_class_detected = None
-
-def precaution():
-    print("This app provides general information about medicines. \nWe are not medical professionals, and this does not replace professional advice. \nAlways consult a healthcare provider before taking any medicine.\nBy using this app, you agree to use it at your own risk.")
-
-    while True:
-        choice = input("Do you want to continue? (Y/N): ").lower()
-        if choice == "y":
-            print("Welcome to Med-ID, please continue to the next process.")
-            return True
-        elif choice == "n":
-            print("Exiting..")
-            return False
-        else:
-            print("Not defined")
 
 def calculate_iou(box1, box2):
     """Calculate Intersection over Union between two boxes"""
