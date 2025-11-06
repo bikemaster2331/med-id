@@ -6,30 +6,27 @@ import time
 from collections import deque
 import numpy as np
 
-# --- Configuration Constants (Now defined globally, referenced in class) ---
-# These remain outside the class as project-wide settings that can be accessed globally
+
+# Load your trained model
+model = YOLO("ai/runs/detect/train5/weights/best.pt")
+
+cap = cv2.VideoCapture(0)
+save_dir = "output"
+os.makedirs(save_dir, exist_ok=True)
+
+# Configuration
 CONF_THRESHOLD = 0.75 
 CONF_THRESHOLD_IMAGE = 0.60  
 MIN_DETECTION_AREA = 5000  
 MIN_DETECTION_AREA_IMAGE = 2000  
 STABILITY_FRAMES = 5 
 COOLDOWN_SECONDS = 3  
-MODEL_PATH = "ai/runs/detect/train5/weights/best.pt"
-SAVE_DIR = "output"
 
-# --- Global Components ---
-# These are loaded once and globally available since they represent physical hardware/model
-try:
-    model = YOLO(MODEL_PATH)
-except Exception as e:
-    print(f"ERROR: Could not load YOLO model at {MODEL_PATH}. {e}")
-    sys.exit()
+# Tracking variables
+detection_history = deque(maxlen=STABILITY_FRAMES)
+last_save_time = 0
+last_class_detected = None
 
-cap = cv2.VideoCapture(0)
-os.makedirs(SAVE_DIR, exist_ok=True)
-
-
-# --- Precaution Function (Remains outside the class for startup) ---
 def precaution():
     print("This app provides general information about medicines. \nWe are not medical professionals, and this does not replace professional advice. \nAlways consult a healthcare provider before taking any medicine.\nBy using this app, you agree to use it at your own risk.")
 
@@ -44,26 +41,7 @@ def precaution():
         else:
             print("Not defined")
 
-# --- Main Application Class ---
-class MedicineApp:
-
-    def __init__(self, model_instance, capture_instance):
-        # Tracking variables moved to instance attributes (self.)
-        self.model = model_instance
-        self.cap = capture_instance
-        self.save_dir = SAVE_DIR
-        self.history = deque(maxlen=STABILITY_FRAMES)
-        
-        # Tracking variables
-        self.last_save_time = 0
-        self.last_class_detected = None
-        
-        # Configuration variables (can be adjusted via input)
-        self.conf_thresh = CONF_THRESHOLD
-        self.min_area = MIN_DETECTION_AREA
-        self.cooldown = COOLDOWN_SECONDS
-
-    # --- Utility Methods ---
+class MedicineApp():
 
     def calculate_iou(self, box1, box2):
         """Calculate Intersection over Union between two boxes"""
@@ -100,7 +78,8 @@ class MedicineApp:
 
         # Check if boxes are stable (high IoU with each other)
         for prev_box in history:
-            if self.calculate_iou(current_box[:4], prev_box[:4]) < iou_threshold:
+            calculate_iou = self.calculate_iou
+            if calculate_iou(current_box[:4], prev_box[:4]) < iou_threshold:
                 return False
 
         return True
@@ -121,16 +100,15 @@ class MedicineApp:
 
         return keep
 
-    # --- Core Processing Methods ---
+    def run_model(frame, debug_mode=False, use_image_thresholds=False):
+        global detection_history, last_save_time, last_class_detected
 
-    def run_model(self, frame, debug_mode=False, use_image_thresholds=False):
-        
-        # Use instance attributes for thresholds
-        conf_thresh = CONF_THRESHOLD_IMAGE if use_image_thresholds else self.conf_thresh
-        area_thresh = MIN_DETECTION_AREA_IMAGE if use_image_thresholds else self.min_area
+        # Use different thresholds for static images
+        conf_thresh = CONF_THRESHOLD_IMAGE if use_image_thresholds else CONF_THRESHOLD
+        area_thresh = MIN_DETECTION_AREA_IMAGE if use_image_thresholds else MIN_DETECTION_AREA
 
-        # Run inference
-        results = self.model(frame, imgsz=320, conf=0.5, iou=0.4)
+        # Run inference with lower confidence threshold for initial filtering
+        results = model(frame, imgsz=320, conf=0.5, iou=0.4)
 
         all_detections = []
         rejected_detections = []
@@ -143,35 +121,37 @@ class MedicineApp:
                 area = (x2 - x1) * (y2 - y1)
                 cls = int(box.cls[0])
 
+                # Debug: Track why detections are rejected
                 rejection_reason = None
 
                 # Apply stricter confidence threshold
                 if conf <= conf_thresh:
                     rejection_reason = f"Low confidence: {conf:.3f} <= {conf_thresh}"
-                # Filter by minimum area
+                # Filter by minimum area to remove tiny detections
                 elif area <= area_thresh:
                     rejection_reason = f"Small area: {area}px <= {area_thresh}px"
                 else:
                     all_detections.append((x1, y1, x2, y2, cls, conf))
 
                 if rejection_reason and debug_mode:
-                    rejected_detections.append((self.model.names[cls], conf, area, rejection_reason))
+                    rejected_detections.append((model.names[cls], conf, area, rejection_reason))
 
+        # Print rejection reasons in debug mode
         if debug_mode and rejected_detections:
             print("\n[DEBUG] Rejected detections:")
             for name, conf, area, reason in rejected_detections:
                 print(f"  ❌ {name}: {reason}")
-        
+
         if debug_mode:
             print(f"[DEBUG] Passed filters: {len(all_detections)} detections")
 
-        # Apply custom NMS
-        filtered_detections = self.apply_nms_custom(all_detections)
+        # Apply custom NMS to remove overlapping detections
+        filtered_detections = apply_nms_custom(all_detections)
 
         # Find the largest detection
         bigbox = None
         max_area = 0
-        
+
         for detection in filtered_detections:
             x1, y1, x2, y2, cls, conf = detection
             area = (x2 - x1) * (y2 - y1)
@@ -179,36 +159,36 @@ class MedicineApp:
                 max_area = area
                 bigbox = detection
 
-        # Draw detections and stability info
+        # Draw all filtered detections
         for detection in filtered_detections:
             x1, y1, x2, y2, cls, conf = detection
             color = (0, 255, 0) if detection == bigbox else (255, 0, 0)
             thickness = 2 if detection == bigbox else 1
-            
-            label = f"{self.model.names[cls]} {conf:.2f}"
+
+            label = f"{model.names[cls]} {conf:.2f}"
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
             cv2.putText(frame, label, (x1, y1 - 10),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-        
+
         # Check for stable detection
         is_stable = False
         if bigbox:
-            self.history.append(bigbox)
-            is_stable = self.is_stable_detection(bigbox, self.history)
+            detection_history.append(bigbox)
+            is_stable = is_stable_detection(bigbox, detection_history)
 
             # Add stability indicator
             if is_stable:
                 cv2.putText(frame, "STABLE", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             else:
-                remaining = STABILITY_FRAMES - len(self.history)
+                remaining = STABILITY_FRAMES - len(detection_history)
                 cv2.putText(frame, f"Stabilizing... {remaining}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
         else:
-            self.history.clear()
+            detection_history.clear()
 
         # Show confidence threshold info
-        cv2.putText(frame, f"Conf: {self.conf_thresh:.2f} | Area: {self.min_area}", 
+        cv2.putText(frame, f"Conf: {CONF_THRESHOLD:.2f} | Area: {MIN_DETECTION_AREA}", 
                 (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
@@ -216,100 +196,113 @@ class MedicineApp:
 
         return bigbox, is_stable
 
-    def save_detection(self, frame, bigbox, bypass_cooldown=False):
+    def save_detection(frame, bigbox, bypass_cooldown=False):
         """Save detection with cooldown to prevent spam"""
-        
+        global last_save_time, last_class_detected
+
         current_time = time.time()
         x1, y1, x2, y2, cls, conf = bigbox
 
-        # Check cooldown (uses self.last_save_time)
-        if not bypass_cooldown and current_time - self.last_save_time < self.cooldown:
-            print(f"Cooldown active. Wait {self.cooldown - (current_time - self.last_save_time):.1f}s")
+        # Check cooldown (unless bypassed)
+        if not bypass_cooldown and current_time - last_save_time < COOLDOWN_SECONDS:
+            print(f"Cooldown active. Wait {COOLDOWN_SECONDS - (current_time - last_save_time):.1f}s")
             return False
 
-        # Save cropped image (logic simplified slightly for context)
+        # Save cropped image
+        crop = frame[y1:y2, x1:x2]
+
+        # Add padding to crop for better context (optional)
         padding = 20
         h, w = frame.shape[:2]
         y1_pad = max(0, y1 - padding)
         y2_pad = min(h, y2 + padding)
         x1_pad = max(0, x1 - padding)
-        x2_pad = min(w, w, x2 + padding) # Fixed issue with x2_pad logic
+        x2_pad = min(w, x2 + padding)
         crop_padded = frame[y1_pad:y2_pad, x1_pad:x2_pad]
 
         # Save with class name in filename
-        class_name = self.model.names[cls]
+        class_name = model.names[cls]
         filename = f"{class_name}_{int(current_time)}_conf{conf:.2f}.jpg"
-        filepath = os.path.join(self.save_dir, filename)
+        filepath = os.path.join(save_dir, filename)
         cv2.imwrite(filepath, crop_padded)
 
-        self.last_save_time = current_time
-        self.last_class_detected = cls
+        last_save_time = current_time
+        last_class_detected = cls
         print(f"✅ Saved: {filename}")
         return True
 
-    def start_detection(self):
-        """The main execution loop for the video stream."""
-        print("Starting detection...")
-        print(f"Settings: Confidence={self.conf_thresh}, MinArea={self.min_area}, Stability={STABILITY_FRAMES} frames")
-        print("Press 'q' to quit, 's' to force save, 'c' to adjust confidence")
+    # Main loop
+    print("Starting detection...")
+    print(f"Settings: Confidence={CONF_THRESHOLD}, MinArea={MIN_DETECTION_AREA}, Stability={STABILITY_FRAMES} frames")
+    print("Press 'q' to quit, 's' to force save, 'c' to adjust confidence")
 
-        while True:
-            ret, frame = self.cap.read()
+    while True:
+        ret, frame = cap.read()
 
-            if not ret:
-                print("❌ Camera not detected")
-                ans = input("Upload image instead? (Y/N): ").strip().lower()
+        if not ret:
+            print("❌ Camera not detected")
+            ans = input("Upload image instead? (Y/N): ").strip().lower()
 
-                if ans == "n":
-                    print("Exiting...")
+            if ans == "n":
+                print("Exiting...")
+                sys.exit()
+            elif ans == "y":
+                image_path = input("Enter image path: ").strip()
+                frame = cv2.imread(image_path)
+
+                if frame is None:
+                    print("❌ Image not found")
                     sys.exit()
-                elif ans == "y":
-                    image_path = input("Enter image path: ").strip()
-                    frame = cv2.imread(image_path)
+                else:
+                    bigbox, is_stable = run_model(frame, debug_mode=True, use_image_thresholds=True)  # Use relaxed thresholds
+                    if bigbox:
+                        # For static images, bypass stability check
+                        print(f"📸 Static image mode - saving without stability check")
+                        x1, y1, x2, y2, cls, conf = bigbox
+                        crop = frame[y1:y2, x1:x2]
 
-                    if frame is None:
-                        print("❌ Image not found")
-                        sys.exit()
+                        # Add padding
+                        padding = 20
+                        h, w = frame.shape[:2]
+                        y1_pad = max(0, y1 - padding)
+                        y2_pad = min(h, y2 + padding)
+                        x1_pad = max(0, x1 - padding)
+                        x2_pad = min(w, x2 + padding)
+                        crop_padded = frame[y1_pad:y2_pad, x1_pad:x2_pad]
+
+                        class_name = model.names[cls]
+                        filename = f"{class_name}_{int(time.time())}_conf{conf:.2f}.jpg"
+                        filepath = os.path.join(save_dir, filename)
+                        cv2.imwrite(filepath, crop_padded)
+                        print(f"✅ Saved: {filename}")
                     else:
-                        bigbox, is_stable = self.run_model(frame, debug_mode=True, use_image_thresholds=True)
-                        if bigbox:
-                            print(f"📸 Static image mode - saving without stability check")
-                            self.save_detection(frame, bigbox, bypass_cooldown=True)
-                        else:
-                            print("❌ No valid detections found")
-                        cv2.waitKey(0)
-                        cv2.destroyAllWindows()
-                        sys.exit()
-            else:
-                bigbox, is_stable = self.run_model(frame)
+                        print("❌ No valid detections found")
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
+                    sys.exit()
+        else:
+            bigbox, is_stable = run_model(frame)
 
-                key = cv2.waitKey(1) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
 
-                if key == ord("q"):
-                    break
-                elif key == ord("s") and bigbox:
-                    # Force save
-                    self.save_detection(frame, bigbox, bypass_cooldown=True) # Bypass cooldown for force save
-                elif key == ord("c"):
-                    # Adjust confidence threshold (needs access to self.conf_thresh)
-                    new_conf = input("Enter new confidence threshold (0.0-1.0): ")
-                    try:
-                        self.conf_thresh = float(new_conf)
-                        print(f"Confidence threshold set to {self.conf_thresh}")
-                    except:
-                        print("Invalid input")
+            if key == ord("q"):
+                break
+            elif key == ord("s") and bigbox:
+                # Force save
+                save_detection(frame, bigbox)
+            elif key == ord("c"):
+                # Adjust confidence threshold
+                new_conf = input("Enter new confidence threshold (0.0-1.0): ")
+                try:
+                    CONF_THRESHOLD = float(new_conf)
+                    print(f"Confidence threshold set to {CONF_THRESHOLD}")
+                except:
+                    print("Invalid input")
 
-                # Auto-save only if detection is stable
-                if bigbox and is_stable:
-                    self.save_detection(frame, bigbox)
+            # Auto-save only if detection is stable
+            if bigbox and is_stable:
+                save_detection(frame, bigbox)
 
-        self.cap.release()
-        cv2.destroyAllWindows()
-        print("Detection stopped")
-
-
-if __name__ == '__main__':
-    if precaution():
-        # Instantiate the class, passing the global model and camera objects
-        app = MedicineApp(model_instance=model, capture_instance=cap)
-        app.start_detection()
+    cap.release()
+    cv2.destroyAllWindows()
+    print("Detection stopped")
