@@ -62,8 +62,10 @@ class MedicineApp:
         self.min_area = MIN_DETECTION_AREA
         self.cooldown = COOLDOWN_SECONDS
         
+        # --- CRITICAL FIX: OCR Initialization ---
         try:
-            self.ocr = PaddleOCR(use_angle_cls=True, lang='en') 
+            # Initialize OCR once when the app starts
+            self.ocr = PaddleOCR(use_angle_cls=True, lang='en', show_log=False) 
         except Exception as e:
             print(f"ERROR: Could not initialize PaddleOCR. Ensure installation is correct. {e}")
             sys.exit()
@@ -127,7 +129,8 @@ class MedicineApp:
         Runs PaddleOCR on the cropped image (medicine bottle) to extract text 
         and saves the result to a JSON file.
         """
-        result = self.ocr.predict(cropped_image) 
+        # CRITICAL FIX: Use self.ocr instance and the provided cropped_image parameter
+        result = self.ocr.ocr(cropped_image, cls=True) 
         extracted_text_list = []
 
         if result and result[0]:
@@ -343,6 +346,7 @@ class MedicineApp:
         self.cap.release()
         cv2.destroyAllWindows()
         print("Detection stopped")
+
 
 
 if precaution():
