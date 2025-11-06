@@ -4,7 +4,7 @@ import os
 def run_pipeline():
     print("=== STEP 1: OCR TEXT EXTRACTION ===")
     try:
-        from obj_detection import process_pipe
+        from pipeline import process_pipe
         process_pipe()
         print("✓ OCR processing completed successfully\n")
     except Exception as e:
@@ -39,7 +39,7 @@ def main():
     run_api_client()
     
     print("=" * 50)
-    print("🎉 Medicine identification process completed!")
+    print("Medicine identification process completed!")
 
 if __name__ == "__main__":
     main()
