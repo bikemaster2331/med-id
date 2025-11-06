@@ -5,7 +5,6 @@ import os
 import time
 from collections import deque
 import numpy as np
-import json
 
 # --- Configuration Constants (Now defined globally, referenced in class) ---
 # These remain outside the class as project-wide settings that can be accessed globally
@@ -307,11 +306,6 @@ class MedicineApp:
         self.cap.release()
         cv2.destroyAllWindows()
         print("Detection stopped")
-
-    def save_to_json(self, data):
-        os.makedirs('results/text_detect', exist_ok = True)
-        with open("results/text_detect/output.json", "w", encoding ="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
 
 
 app = MedicineApp(model_instance=model, capture_instance=cap)
