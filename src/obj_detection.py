@@ -6,7 +6,6 @@ import time
 from collections import deque
 import numpy as np
 import json
-from paddleocr import PaddleOCR
 
 # --- Configuration Constants (Now defined globally, referenced in class) ---
 # These remain outside the class as project-wide settings that can be accessed globally
@@ -249,27 +248,8 @@ class MedicineApp:
         print(f"✅ Saved: {filename}")
         return True
     
-    def text_extract(self, frame):
-        ocr = PaddleOCR(use_angle_cls = True, lang='en')
-        result = ocr.predict(self.image)
-        extracted_text = []
-        if result and len(result) > 0:
-            result_dict = result[0]
-            if 'rec_texts' in result_dict and 'rec_scores' in result_dict:
-                texts = result_dict['rec_texts']
-                score = result_dict['rec_scores']
-                for i, (text, confidence) in enumerate(zip(texts, score)):
-                    if confidence > 0.8:
-                        extracted_text.append({
-                            "text": text,
-                            "confidence": confidence
-                        })
-            else:
-                print("No text found")
-        else:
-            print("OCR failed, try again")
-        self.save_to_json(extracted_text)
-        return extracted_text
+    def text_extract(self):
+        ocr = Paddl
 
     def start_detection(self):
         """The main execution loop for the video stream."""
@@ -289,16 +269,16 @@ class MedicineApp:
                     sys.exit()
                 elif ans == "y":
                     image_path = input("Enter image path: ").strip()
-                    self.frame = cv2.imread(image_path)
+                    frame = cv2.imread(image_path)
 
-                    if self.frame is None:
+                    if frame is None:
                         print("❌ Image not found")
-                        return False
+                        sys.exit()
                     else:
-                        bigbox, is_stable = self.run_model(self.frame, debug_mode=True, use_image_thresholds=True)
+                        bigbox, is_stable = self.run_model(frame, debug_mode=True, use_image_thresholds=True)
                         if bigbox:
                             print(f"📸 Static image mode - saving without stability check")
-                            self.save_detection(self.frame, bigbox, bypass_cooldown=True)
+                            self.save_detection(frame, bigbox, bypass_cooldown=True)
                         else:
                             print("❌ No valid detections found")
                         cv2.waitKey(0)
