@@ -251,7 +251,7 @@ class MedicineApp:
     
     def text_extract(self, frame):
         ocr = PaddleOCR(use_angle_cls = True, lang='en')
-        result = ocr.predict(self.frame)
+        result = ocr.predict(self.image)
         extracted_text = []
         if result and len(result) > 0:
             result_dict = result[0]
@@ -299,7 +299,6 @@ class MedicineApp:
                         if bigbox:
                             print(f"📸 Static image mode - saving without stability check")
                             self.save_detection(self.frame, bigbox, bypass_cooldown=True)
-                            self.text_extract(self.frame)
                         else:
                             print("❌ No valid detections found")
                         cv2.waitKey(0)
