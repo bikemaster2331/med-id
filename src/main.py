@@ -15,7 +15,7 @@ def run_prediction():
     print("=== STEP 2: MEDICINE TEXT CLASSIFICATION ===")
     try:
         import predict
-        print("✓ Text classification completed successfully\n")
+        print("✓ Text classifcation completed successfully\n")
     except Exception as e:
         print(f"✗ Error in prediction step: {e}")
         sys.exit(1)
