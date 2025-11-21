@@ -1,7 +1,4 @@
-import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-import pickle
+import spacy
 import json
 import os
 import sys
@@ -36,41 +33,49 @@ if not test_texts:
 
 print(f"Processing {len(test_texts)} texts...")
 
-# Load model and tokenizer
-model = load_model("med_classifier.h5")
-with open("tokenizer.pkl", "rb") as f:
-    tokenizer = pickle.load(f)
+SPACY_PATH = "models/spacy_ner"
+nlp = None
 
-# Convert text to sequences
-sequences = tokenizer.texts_to_sequences(test_texts)
-X = pad_sequences(sequences, maxlen=model.input_shape[1], padding="post")
 
-# Predict
-pred_probs = model.predict(X)
+try:
+    if os.path.isdir(SPACY_PATH):
+        nlp = spacy.load(SPACY_PATH)
+        print(f"Loaded custom spaCy model from {SPACY_PATH}")
+    else:
+        # fallback to bundled small english model
+        try:
+            nlp = spacy.load("en_core_web_sm")
+            print("Loaded spaCy model: en_core_web_sm (fallback).")
+        except Exception as e:
+            print("spaCy model 'en_core_web_sm' not found. Install with:")
+            print("  python -m spacy download en_core_web_sm")
+            raise e
+except Exception as e:
+    print("Failed to load a spaCy model:", e)
+    sys.exit(1)
 
 # Filter results based on probability threshold
-filtered_text = []
+# filtered_text = []
 
-for text, prob in zip(test_texts, pred_probs):
-    probability = float(prob[0])  # Extract probability value
+# for text, prob in zip(test_texts, pred_probs):
+#     probability = float(prob[0])  # Extract probability value
     
-    if probability > 0.9:  # High confidence medicine names
-        filtered_text.append({
-            "text": text,
-            "probability": probability
-        })
-        print(f"✓ MEDICINE: '{text}' (prob: {probability:.3f})")
-    else:
-        print(f"✗ OTHER: '{text}' (prob: {probability:.3f})")
+#     if probability > 0.7:  # High confidence medicine names
+#         filtered_text.append({
+#             "text": text,
+#             "probability": probability
+#         })
+#         print(f"✓ MEDICINE: '{text}' (prob: {probability:.3f})")
+#     else:
+#         print(f"✗ OTHER: '{text}' (prob: {probability:.3f})")
 
-# ALWAYS write to JSON file, whether empty or with results
-if not filtered_text:
-    print("No text passed the filter (probability > 0.9). Creating empty output file...")
-    with open("results/filter/output_next.json", "w", encoding="utf-8") as f:
-        json.dump([], f, ensure_ascii=False, indent=4)
-    print("✓ Empty JSON file created at results/filter/output_next.json")
-else:
-    print(f"\n{len(filtered_text)} text(s) passed the filter. Saving to JSON...")
-    with open("results/filter/output_next.json", "w", encoding="utf-8") as f:
-        json.dump(filtered_text, f, ensure_ascii=False, indent=4)
-    print("✓ Results saved to results/filter/output_next.json")
+# # ALWAYS write to JSON file, whether empty or with results
+# if not filtered_text:
+#     with open("results/filter/output_next.json", "w", encoding="utf-8") as f:
+#         json.dump([], f, ensure_ascii=False, indent=4)
+#     print("✓ Empty JSON file created at results/filter/output_next.json")
+# else:
+#     print(f"\n{len(filtered_text)} text(s) passed the filter. Saving to JSON...")
+#     with open("results/filter/output_next.json", "w", encoding="utf-8") as f:
+#         json.dump(filtered_text, f, ensure_ascii=False, indent=4)
+#     print("✓ Results saved to results/filter/output_next.json")
