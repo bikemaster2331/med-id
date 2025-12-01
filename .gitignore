@@ -1,1 +1,4 @@
-aienv/
+# Large archives/binaries
+*.dmg
+*.zip
+*.7z
