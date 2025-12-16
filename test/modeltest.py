@@ -1,39 +1,35 @@
-import cv2
-from ultralytics import YOLO
-import sys
+import spacy
 
-# Load your trained model
-model = YOLO("ai/runs/detect/train5/weights/best.pt")
+# Load the new model
+try:
+    nlp = spacy.load("model/model-best")
+    print("✅ Model loaded successfully.")
+except OSError:
+    print("❌ Model not found. Check the path.")
+    exit()
 
-# Ask for an image path
-if len(sys.argv) > 1:
-    image_path = sys.argv[1]
-else:
-    image_path = input("Enter image path: ")
+# The Ultimate Test: Unseen drugs, Tricky formatting, and Hard Negatives
+test_sentences = [
+    # 1. UNSEEN DRUGS (From your Dev list)
+    "Prescription for Tramadol 50mg capsule",
+    "Take Albuterol 2.5mg now",
+    
+    # 2. HARD NEGATIVES (Should output NOTHING)
+    "Pharmacy: CVS Store #123",
+    "Date Filled: 10/12/2023",
+    "Qty: 30 Refills: 0",
+    "Dr. Smith Signature",
+    
+    # 3. TRICKY FORMATTING (Real world noise)
+    "Rx: ATORVASTATIN 20 MG TAB",   # All caps
+    "METFORMIN500mg",               # No space (Common OCR error)
+    "Lisinopril 10mg",              # Missing form
+]
 
-# Load image
-image = cv2.imread(image_path)
-if image is None:
-    print("Image not found.")
-    sys.exit()
+print(f"\n{'TEXT':<40} | {'ENTITIES'}")
+print("-" * 70)
 
-# Run YOLO inference
-results = model(image, imgsz=320)
-
-# Draw results on image
-for r in results:
-    for box in r.boxes:
-        conf = float(box.conf[0])
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        cls = int(box.cls[0])
-        label = f"{model.names[cls]} {conf:.2f}"
-
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(image, label, (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-# Show result
-cv2.imshow("YOLO Test", image)
-print("Press any key to close window...")
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+for text in test_sentences:
+    doc = nlp(text)
+    ents = [(e.text, e.label_) for e in doc.ents]
+    print(f"{text:<40} | {ents}")
