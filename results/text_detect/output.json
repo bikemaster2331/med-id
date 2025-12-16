@@ -1,34 +1,26 @@
 [
     {
-        "text": "Pharmacy",
-        "confidence": 0.999210000038147
+        "text": "100 ml",
+        "confidence": 0.997197151184082
     },
     {
-        "text": "Rx:",
-        "confidence": 0.9698922038078308
+        "text": "Paracetamol",
+        "confidence": 0.9998087286949158
     },
     {
-        "text": "TAKE ONE TABLETB",
-        "confidence": 0.9788053631782532
+        "text": "Infusion IP",
+        "confidence": 0.9982119202613831
     },
     {
-        "text": "EVERY DAY",
-        "confidence": 0.9599990844726562
+        "text": "(1.0% w/v)",
+        "confidence": 0.9939301609992981
     },
     {
-        "text": "LISINOPRIL",
-        "confidence": 0.9897360801696777
+        "text": "/romol",
+        "confidence": 0.9472339153289795
     },
     {
-        "text": "QTY:30",
-        "confidence": 0.9981363415718079
-    },
-    {
-        "text": "REFILL 3X BY 07-01-2017",
-        "confidence": 0.9736216068267822
-    },
-    {
-        "text": "Date Filled: 12-01-2016",
-        "confidence": 0.9917935132980347
+        "text": "Chen",
+        "confidence": 0.744921863079071
     }
 ]
