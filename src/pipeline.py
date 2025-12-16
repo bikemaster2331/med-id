@@ -113,54 +113,42 @@ class MedicineApp:
                 print("❌ Invalid choice. Please enter 1 or 2.")
     
     def text_extract(self, image=None):
-        """Extract text from image using OCR"""
         if image is None:
             image = self.current_image
 
         if image is None:
-            print("❌ No image available for OCR")
+            print("No image available for OCR")
             return []
 
         print("\n" + "=" * 70)
-        print("🔍 Extracting text from medicine label...")
+        print("Extracting text from medicine label...")
         print("=" * 70)
 
-        # Run OCR using predict()
         try:
-            result = self.ocr.predict(image)
+            result = self.ocr.ocr(image)
         except Exception as e:
-            print(f"❌ OCR failed: {e}")
+            print(f"✗ Error in OCR pipeline: {e}")
             return []
 
-        extracted_text = []
+        if not result:
+            print("No text found in image")
+            return []
 
-        # Parse predict() results - different structure
-        if result and len(result) > 0:
-            result_dict = result[0]
+        # PaddleOCR v2+ structure
+        rec_texts = result[0].get('rec_texts', [])
+        rec_scores = result[0].get('rec_scores', [])
 
-            # Check if keys exist
-            if 'rec_texts' in result_dict and 'rec_scores' in result_dict:
-                texts = result_dict['rec_texts']
-                scores = result_dict['rec_scores']
+        extracted = []
+        for text, score in zip(rec_texts, rec_scores):
+            extracted.append({
+                "text": text,
+                "confidence": float(score)
+            })
 
-                for text, confidence in zip(texts, scores):
-                    if confidence > 0.8:
-                        extracted_text.append({
-                            "text": text,
-                            "confidence": float(confidence)
-                        })
-                        print(f"  📄 {text} (confidence: {confidence:.2f})")
-            else:
-                print("❌ Unexpected OCR result format")
+        print(f"\nExtracted {len(extracted)} text lines")
+        self.save_to_json(extracted)
 
-        if not extracted_text:
-            print("❌ No text found in image")
-        else:
-            print(f"\n✅ Successfully extracted {len(extracted_text)} text entries!")
-
-        self.save_to_json(extracted_text)
-        
-        return extracted_text
+        return extracted
     
     def save_to_json(self, data):
         """Save OCR results to JSON"""
